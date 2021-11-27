@@ -37,9 +37,19 @@ variable "facility" {
   default     = "sy4"
 }
 
+variable "plan_bastion" {
+  description = "Plan for Bastion Node"
+  default     = "c3.small.x86"
+}
+
+variable "plan_boostrap" {
+  description = "Plan for Bootstrap Node"
+  default     = "c3.medium.x86"
+}
+
 variable "plan_controlplane" {
   description = "Plan for Control Plane Nodes"
-  default     = "c3.small.x86"
+  default     = "m3.large.x86"
 }
 
 variable "plan_compute" {
@@ -49,7 +59,7 @@ variable "plan_compute" {
 
 variable "count_bootstrap" {
   default     = "1"
-  description = "Number of Control Plane Nodes."
+  description = "Number of Bootstrap Node"
 }
 
 variable "count_controlplane" {
@@ -63,17 +73,17 @@ variable "count_compute" {
 }
 
 variable "cluster_name" {
-  default     = "metal"
+  default     = "metal-cluster"
   description = "Cluster name label"
 }
 
 variable "ocp_version" {
-  default     = "4.9"
+  default     = "4.8"
   description = "OpenShift minor release version"
 }
 
 variable "ocp_version_zstream" {
-  default     = "0"
+  default     = "14"
   description = "OpenShift zstream version"
 }
 
