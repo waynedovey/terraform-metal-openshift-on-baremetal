@@ -1,0 +1,11 @@
+output "ids" {
+  value = data.metal_spot_market_request.dnode.device_ids
+}
+
+output "node_ip" {
+  value = [for d in data.metal_device.devs : d.access_public_ipv4]
+}
+
+output "finished" {
+  value = "Provisioning node type ${var.node_type} finished."
+}

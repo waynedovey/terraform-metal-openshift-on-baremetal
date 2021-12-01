@@ -6,6 +6,8 @@ variable "ssh_private_key_path" {}
 variable "count_controlplane" {}
 variable "count_compute" {}
 variable "bastion_ip" {}
+
+variable "bastion_priv_ip" {}
 variable "ocp_api_token" {}
 variable "depends" {
   type    = any

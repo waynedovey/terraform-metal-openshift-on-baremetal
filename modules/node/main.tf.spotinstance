@@ -1,0 +1,30 @@
+resource "metal_spot_market_request" "node" {
+  depends_on       = [var.depends]
+  project_id       = var.project_id
+  max_bid_price    = 0.61
+  facilities       = [var.facility]
+  devices_min      = var.node_count
+  devices_max      = var.node_count
+  wait_for_devices = true
+
+  instance_parameters {
+    hostname         = format("%s-%01d.%s.%s", var.node_type, var.node_count, var.cluster_name, var.cluster_basedomain)
+    #hostname         = format("%s-%01d.%s.%s", var.node_type, var.node_count[0], var.cluster_name, var.cluster_basedomain)
+    billing_cycle    = "hourly"
+    operating_system = "custom_ipxe"
+    ipxe_script_url  = "http://${var.bastion_ip}:8080/${var.node_type}.ipxe"
+    plan             = var.plan
+  }
+}
+
+data "metal_device" "devs" {
+  depends_on = [metal_spot_market_request.node]
+  #count      = length(data.metal_spot_market_request.dnode.device_ids)
+  count      = var.node_count
+  device_id  = data.metal_spot_market_request.dnode.device_ids[count.index]
+}
+
+data "metal_spot_market_request" "dnode" {
+  depends_on = [metal_spot_market_request.node]
+  request_id = metal_spot_market_request.node.id
+}

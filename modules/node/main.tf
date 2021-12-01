@@ -8,6 +8,7 @@ resource "metal_device" "node" {
   count            = var.node_count
   billing_cycle    = "hourly"
   project_id       = var.project_id
-
+  ip_address {
+    type = "private_ipv4"
+  }
 }
-

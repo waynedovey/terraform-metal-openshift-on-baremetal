@@ -48,6 +48,7 @@ module "prepare_openshift" {
   ssh_public_key       = module.sshkey.ssh_public_key
   ssh_private_key_path = module.sshkey.ssh_private_key_file
   bastion_ip           = module.bastion.lb_ip
+  bastion_priv_ip      = module.bastion.lb_priv_ip
   ocp_api_token        = var.ocp_cluster_manager_token
   depends              = [module.bastion.finished]
 }
@@ -64,6 +65,7 @@ module "openshift_bootstrap" {
   ssh_private_key_path = module.sshkey.ssh_private_key_file
   project_id           = var.project_id
   bastion_ip           = module.bastion.lb_ip
+#  bastion_priv_ip      = module.bastion_priv_ip
   node_type            = "bootstrap"
   depends              = [module.prepare_openshift.finished]
 }

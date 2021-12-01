@@ -1,28 +1,28 @@
-data "template_file" "user_data" {
-  template = file("${path.module}/assets/user_data_${var.operating_system}.sh")
+data "template_file" "userdata" {
+  template = file("${path.module}/assets/userdata_${var.operating_system}.sh")
 }
 
 data "template_file" "ipxe_script" {
-  depends_on = [metal_device.lb]
+  depends_on = [metal_spot_market_request.lb]
   for_each   = toset(var.nodes)
   template   = file("${path.module}/assets/ipxe.tpl")
 
   vars = {
     node_type           = each.value
-    bastion_ip          = metal_device.lb.access_public_ipv4
+    bastion_ip          = data.metal_device.devs
     ocp_version         = var.ocp_version
     ocp_version_zstream = var.ocp_version_zstream
   }
 }
 
 data "template_file" "ignition_append" {
-  depends_on = [metal_device.lb]
+  depends_on = [metal_spot_market_request.lb]
   for_each   = toset(var.nodes)
   template   = file("${path.module}/assets/ignition-append.json.tpl")
 
   vars = {
     node_type          = each.value
-    bastion_ip         = metal_device.lb.access_public_ipv4
+    bastion_ip         = data.metal_device.devs
     cluster_name       = var.cluster_name
     cluster_basedomain = var.cluster_basedomain
   }
@@ -39,20 +39,33 @@ locals {
 
 }
 
-resource "metal_device" "lb" {
-  hostname         = "lb-0.${var.cluster_name}.${var.cluster_basedomain}"
-  plan             = var.plan
-  facilities       = [var.facility]
-  operating_system = var.operating_system
-  billing_cycle    = var.billing_cycle
-  project_id       = var.project_id
-  user_data        = data.template_file.user_data.rendered
-  ip_address {
-    type = "public_ipv4"
+
+resource "metal_spot_market_request" "lb" {
+  project_id    = var.project_id
+  max_bid_price = 0.18
+  facilities    = [var.facility]
+  devices_min   = 1
+  devices_max   = 1
+
+  instance_parameters {
+    hostname         = "lb-0.${var.cluster_name}.${var.cluster_basedomain}"
+    billing_cycle    = var.billing_cycle
+    operating_system = var.operating_system
+    plan             = var.plan
+    userdata         = data.template_file.userdata.rendered
   }
-  ip_address {
-    type = "private_ipv4"
-  }
+}
+
+
+data "metal_spot_market_request" "dlb" {
+  depends_on = [metal_spot_market_request.lb]
+  request_id = metal_spot_market_request.lb.id
+}
+data "metal_device" "devs" {
+  #count     = length(data.metal_spot_market_request.dlb.device_ids)
+  depends_on = [metal_spot_market_request.lb]  
+  count     = 1
+  device_id = data.metal_spot_market_request.dlb.device_ids[count.index]
 }
 
 resource "null_resource" "dircheck" {
@@ -61,7 +74,7 @@ resource "null_resource" "dircheck" {
 
     connection {
       private_key = file(var.ssh_private_key_path)
-      host        = metal_device.lb.access_public_ipv4
+      host        = data.metal_device.devs
     }
 
 
@@ -81,7 +94,7 @@ resource "null_resource" "ocp_install_ignition" {
 
     connection {
       private_key = file(var.ssh_private_key_path)
-      host        = metal_device.lb.access_public_ipv4
+      host        = data.metal_device.devs
     }
 
 
@@ -103,7 +116,7 @@ resource "null_resource" "ipxe_files" {
 
     connection {
       private_key = file(var.ssh_private_key_path)
-      host        = metal_device.lb.access_public_ipv4
+      host        = data.metal_device.devs
     }
 
     content     = each.value.rendered
@@ -114,7 +127,7 @@ resource "null_resource" "ipxe_files" {
 
     connection {
       private_key = file(var.ssh_private_key_path)
-      host        = metal_device.lb.access_public_ipv4
+      host        = data.metal_device.devs
     }
 
 
@@ -133,7 +146,7 @@ resource "null_resource" "ignition_append_files" {
 
     connection {
       private_key = file(var.ssh_private_key_path)
-      host        = metal_device.lb.access_public_ipv4
+      host        = data.metal_device.devs
     }
 
     content     = each.value.rendered
@@ -144,7 +157,7 @@ resource "null_resource" "ignition_append_files" {
 
     connection {
       private_key = file(var.ssh_private_key_path)
-      host        = metal_device.lb.access_public_ipv4
+      host        = data.metal_device.devs
     }
 
 

@@ -44,12 +44,17 @@ variable "plan_bastion" {
 
 variable "plan_boostrap" {
   description = "Plan for Bootstrap Node"
-  default     = "c3.medium.x86"
+  #default     = "c3.medium.x86"
+  #default     = "c3.small.x86"
+  default     = "s3.xlarge.x86"
 }
 
 variable "plan_controlplane" {
   description = "Plan for Control Plane Nodes"
-  default     = "m3.large.x86"
+  #default     = "c3.small.x86"
+  #default     = "c3.medium.x86"
+  #default     = "m3.large.x86"
+  default     = "s3.xlarge.x86"
 }
 
 variable "plan_compute" {
@@ -84,6 +89,7 @@ variable "ocp_version" {
 
 variable "ocp_version_zstream" {
   default     = "14"
+  #default     = "21"
   description = "OpenShift zstream version"
 }
 

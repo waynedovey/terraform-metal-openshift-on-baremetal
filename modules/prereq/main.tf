@@ -65,6 +65,7 @@ data "template_file" "installer_config" {
     ssh_public_key     = var.ssh_public_key
     count_controlplane = var.count_controlplane
     count_compute      = var.count_compute
+    bastion_priv_ip    = var.bastion_priv_ip
   }
 }
 

@@ -1,5 +1,6 @@
 output "node_ip" {
-  value = metal_device.node.*.access_public_ipv4
+  #value = metal_device.node.*.access_public_ipv4
+  value = metal_device.node.*.access_private_ipv4
 }
 
 output "finished" {
